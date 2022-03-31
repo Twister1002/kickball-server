@@ -1,5 +1,5 @@
 import { BaseEntity, Entity, PrimaryGeneratedColumn, Column, OneToOne, ManyToOne, Unique, Index, JoinColumn } from "typeorm";
-import { AwardSeason } from "./AwardSeason.entity";
+import { SeasonEntity } from "../seasons/Season.entity";
 import { AwardQuestion } from "./AwardQuestion.entity";
 import { AwardQuestionOption } from "./AwardQuestionOption.entity";
 import { AwardUser } from "./AwardUser.entity";
@@ -16,8 +16,8 @@ export class AwardVote extends BaseEntity{
     awardUser: AwardUser
 
     @JoinColumn()
-    @OneToOne(() => AwardSeason, a => a.id)
-    awardSeason: AwardSeason
+    @OneToOne(() => SeasonEntity, a => a.id)
+    awardSeason: SeasonEntity
     
     @JoinColumn()
     @OneToOne(() => AwardQuestion, aq => aq.id)

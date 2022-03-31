@@ -69,9 +69,21 @@ export class PlayerService {
 
     public async removePlayerFromSeason(playerId: number, year: number, seasonNum: number): Promise<PlayerEntity> {
         const player: PlayerEntity = await this.getPlayerById(playerId);
+        const season: SeasonEntity | undefined = await this.seasonRepo.findOne({ year, season: seasonNum }) ?? undefined;
 
-        player.seasons = player.seasons.filter(x => x.season !== seasonNum && x.year !== year);
+        // Make sure the season actually exists first
+        if (!season) {
+            throw Error(`Year ${year} and season ${SeasonEnum[seasonNum].toString()} does not exist`);
+        }
+        // Check if the player is not in the season
+        else if (!player.seasons.some(x => x.id === season.id)) {
+            throw Error(`Player does not exist in year ${year} and season ${SeasonEnum[seasonNum].toString()}`);
+        } 
+        else {
+            player.seasons = player.seasons.filter(x => x.id !== season.id);
+            player.save();
 
-        return player;
+            return player;
+        }
     }
 }
