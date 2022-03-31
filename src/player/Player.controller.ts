@@ -1,4 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Put } from "@nestjs/common";
+import { PlayerPositionsDTO } from "src/playerpositions/PlayerPositions.dto";
 import { PlayerEntity } from "./Player.entity";
 import { PlayerService } from "./Player.service";
 
@@ -52,6 +53,18 @@ export class PlayerController {
         @Body("season") season: number
     ): Promise<PlayerEntity | string> {
         return this.playerService.removePlayerFromSeason(playerId, year, season)
+        .then((player) => player)
+        .catch((err: Error) => err.message);
+    }
+
+    @Put("positions/add")
+    public addPositionsToPlayer(
+        @Body("playerId") playerId: number,
+        @Body("year") year: number,
+        @Body("season") season: number,
+        @Body("positions") positions: PlayerPositionsDTO
+    ): Promise<PlayerEntity | string> {
+        return this.playerService.addPositionsToPlayer(playerId, year, season, positions)
         .then((player) => player)
         .catch((err: Error) => err.message);
     }

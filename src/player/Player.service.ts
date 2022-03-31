@@ -1,35 +1,46 @@
-import { Injectable } from "@nestjs/common";
+import { Dependencies, Inject, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { PlayerEntity } from "./Player.entity";
 import { SeasonEntity, SeasonEnum } from "../seasons/Season.entity";
 import { Repository } from "typeorm";
+import { PlayerPositionsDTO } from "src/playerpositions/PlayerPositions.dto";
+import { SeasonDTO } from "src/seasons/Season.dto";
+import { PlayerPositionsService } from "src/playerpositions/PlayerPositions.service";
+import { PlayerPositionsEntity } from "src/playerpositions/PlayerPositions.entity";
 
 @Injectable()
+@Dependencies(PlayerPositionsService)
 export class PlayerService {
+    private positionService: PlayerPositionsService;
+
     constructor(
         @InjectRepository(PlayerEntity) private playerRepo: Repository<PlayerEntity>,
-        @InjectRepository(SeasonEntity) private seasonRepo: Repository<SeasonEntity>
-    ) {}
+        @InjectRepository(SeasonEntity) private seasonRepo: Repository<SeasonEntity>,
+        positionService: PlayerPositionsService
+    ) {
+        this.positionService = positionService
+    }
 
     public getPlayers(): Promise<Array<PlayerEntity>> {
-        return this.playerRepo.find({ order: { id: "ASC" }, relations: ["seasons"] });
+        return this.playerRepo.find({ order: { id: "ASC" }, relations: ["seasons", "positions"] });
     }
 
     public getPlayerByName(firstName: string, lastName: string): Promise<PlayerEntity> {
-        return this.playerRepo.findOne({ firstName, lastName }, { relations: ["seasons"] });
+        return this.playerRepo.findOne({ firstName, lastName }, { relations: ["seasons", "positions"] });
     }
 
     public getPlayerById(id: number): Promise<PlayerEntity> {
-        return this.playerRepo.findOne(id, { relations: ["seasons"] });
+        return this.playerRepo.findOne(id, { relations: ["seasons", "positions"] });
     }
 
     public async createNewPlayer(firstName: string, lastName: string): Promise<PlayerEntity> {
-        const newPlayer = await this.playerRepo.save({
-            firstName,
-            lastName
-        })
+        const player = new PlayerEntity();
+        player.firstName = firstName;
+        player.lastName = lastName;
+        player.seasons = [];
+        player.positions = [];
 
-        return newPlayer;
+        return await player.save();
     }
 
     public async updatePlayer(id: number, newData: { firstName: string, lastName: string}): Promise<PlayerEntity> {
@@ -81,9 +92,57 @@ export class PlayerService {
         } 
         else {
             player.seasons = player.seasons.filter(x => x.id !== season.id);
+            player.positions = player.positions.filter(x => x.seasonId !== season.id);
             player.save();
 
             return player;
         }
+    }
+
+    public async addPositionsToPlayer(playerId: number, year: number, seasonNum: number, positions: PlayerPositionsDTO): Promise<PlayerEntity> {
+        const player: PlayerEntity = await this.getPlayerById(playerId);
+        const season: SeasonEntity | undefined = await this.seasonRepo.findOne({ year, season: seasonNum }) ?? undefined;
+
+        // Player Exists?
+        if (!player) {
+            throw Error(`Player does not exist`);
+        }
+        // Season Exists?
+        else if (!season) {
+            throw Error(`Year ${year} and season ${SeasonEnum[seasonNum].toString()} does not exist`);
+        }
+        // Verify the player is in the season
+        else if (!player.seasons.some(x => x.id === seasonNum)) {
+            throw Error(`Player does not exist in year ${year} and season ${SeasonEnum[seasonNum].toString()}`);
+        }
+        // All good
+        else {
+            const seasonPositions: PlayerPositionsEntity = player.positions.find(x => x.seasonId === season.id) ?? new PlayerPositionsEntity();
+
+            seasonPositions.seasonId = season.id;
+            seasonPositions.firstBase = positions.firstBase;
+            seasonPositions.secondBase = positions.secondBase;
+            seasonPositions.thirdBase = positions.thirdBase;
+            seasonPositions.shortStop = positions.shortStop;
+            seasonPositions.catcher = positions.catcher;
+            seasonPositions.pitcher = positions.pitcher;
+            seasonPositions.outField = positions.outField;
+
+            console.log("Before id check")
+
+            if (!seasonPositions?.id) {
+                player.positions.push(seasonPositions);
+            }
+            
+            return await player.save();
+        }
+    }
+
+    public async updatePositionsToPlayer() {
+
+    }
+
+    public async removePositionsFromPlayer() {
+
     }
 }

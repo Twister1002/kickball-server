@@ -3,6 +3,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Connection } from 'typeorm';
 import { PlayerEntity } from './player/Player.entity';
 import { PlayerModule } from './player/Player.module';
+import { PlayerPositionsEntity } from './playerpositions/PlayerPositions.entity';
+import { PlayerPositionsModule } from './playerpositions/PlayerPositions.module';
 import { SeasonEntity } from './seasons/Season.entity';
 import { SeasonModule } from './seasons/Season.module';
 
@@ -17,14 +19,16 @@ import { SeasonModule } from './seasons/Season.module';
       database: "kickball",
       entities: [
         SeasonEntity,
-        PlayerEntity
+        PlayerEntity,
+        PlayerPositionsEntity
       ],
-      synchronize: false,
+      synchronize: true,
       dropSchema: false,
       autoLoadEntities: true,
     }),
     SeasonModule,
-    PlayerModule
+    PlayerModule,
+    PlayerPositionsModule
   ]
 })
 export class AppModule {
