@@ -1,5 +1,6 @@
-import { BaseEntity, Entity, PrimaryGeneratedColumn, Column, OneToMany, Index, ManyToOne } from "typeorm";
-import { AwardSeason } from "./AwardSeason.entity";
+import { SeasonEntity } from "src/seasons/Season.entity";
+import { BaseEntity, Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne } from "typeorm";
+
 import { AwardQuestionOption } from "./AwardQuestionOption.entity";
 
 @Entity()
@@ -16,6 +17,6 @@ export class AwardQuestion extends BaseEntity{
     @OneToMany(() => AwardQuestionOption, o => o.id)
     options: Array<AwardQuestionOption>
 
-    @ManyToOne(() => AwardSeason, a => a.questions)
-    award: AwardSeason
+    // @ManyToOne(() => SeasonEntity, a => a.questions)
+    // award: SeasonEntity
 }

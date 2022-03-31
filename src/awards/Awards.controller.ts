@@ -11,6 +11,11 @@ export class AwardsController {
         return this.awardService.getUserByUUID(uuid);
     }
 
+    @Get("users")
+    getAllUsers(): Promise<Array<AwardUser>> {
+        return this.awardService.getAllUsers();
+    }
+
     @Put("create")
     createUUIDs(@Body("amount") amount: number): Promise<number> {
         return this.awardService.createUsersForAwards(amount);

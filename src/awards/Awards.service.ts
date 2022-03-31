@@ -13,6 +13,10 @@ export class AwardsService {
         return this.awardUsers.findOne(uuid);
     }
 
+    getAllUsers(): Promise<Array<AwardUser>> {
+        return this.awardUsers.find({order: { firstName: "ASC"}});
+    }
+
     async createUsersForAwards(amount: number): Promise<number> {
         let createdUsers: number = 0;
 
