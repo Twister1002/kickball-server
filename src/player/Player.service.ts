@@ -45,15 +45,17 @@ export class PlayerService {
 
     public async addPlayerToSeason(playerId: number, year: number, seasonNum: number): Promise<PlayerEntity> {
         const player: PlayerEntity = await this.getPlayerById(playerId);
-        const season: SeasonEntity = await this.seasonRepo.findOne({ year, season: seasonNum });
+        const season: SeasonEntity | undefined = await this.seasonRepo.findOne({ year, season: seasonNum }) ?? undefined;
 
-        // Make sure the player isn't already in the season
-        if (player.seasons.find(x => x.id === season.id)) {
-            throw Error(`Player exists in year ${year} and season ${SeasonEnum[seasonNum].toString()}`);
-        }
-        else if (!season) {
+        // Make sure the season actually exists first
+        if (!season) {
             throw Error(`Year ${year} and season ${SeasonEnum[seasonNum].toString()} does not exist`);
         }
+        // Make sure the player isn't already in the season
+        else if (player.seasons.find(x => x.id === season.id)) {
+            throw Error(`Player exists in year ${year} and season ${SeasonEnum[seasonNum].toString()}`);
+        } 
+        // All Valid
         else {
             if (!player.seasons) {
                 player.seasons = [];
