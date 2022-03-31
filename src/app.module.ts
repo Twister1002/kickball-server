@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Connection } from 'typeorm';
-import { AwardModule } from './awards/Awards.module';
+import { PlayerEntity } from './player/Player.entity';
 import { PlayerModule } from './player/Player.module';
-import { QuestionModule } from './questions/Questions.module';
+import { SeasonEntity } from './seasons/Season.entity';
+import { SeasonModule } from './seasons/Season.module';
 
 @Module({
   imports: [
@@ -15,14 +16,15 @@ import { QuestionModule } from './questions/Questions.module';
       password: "root",
       database: "kickball",
       entities: [
-        "src/entities/*.entity{.ts,.js}",
+        SeasonEntity,
+        PlayerEntity
       ],
-      synchronize: true,
-      dropSchema: true,
+      synchronize: false,
+      dropSchema: false,
       autoLoadEntities: true,
     }),
-    AwardModule,
-    QuestionModule
+    SeasonModule,
+    PlayerModule
   ]
 })
 export class AppModule {
