@@ -9,28 +9,28 @@ import { SeasonEntity } from './seasons/Season.entity';
 import { SeasonModule } from './seasons/Season.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forRoot({
-      type: "mysql",
-      host: "127.0.0.1",
-      port: 33060,
-      username: "root",
-      password: "root",
-      database: "kickball",
-      entities: [
-        SeasonEntity,
-        PlayerEntity,
-        PlayerPositionsEntity
-      ],
-      synchronize: true,
-      dropSchema: false,
-      autoLoadEntities: true,
-    }),
-    SeasonModule,
-    PlayerModule,
-    PlayerPositionsModule
-  ]
+    imports: [
+        TypeOrmModule.forRoot({
+            type: "mysql",
+            host: "127.0.0.1",
+            port: 33060,
+            username: "root",
+            password: "root",
+            database: "kickball",
+            entities: [
+                SeasonEntity,
+                PlayerEntity,
+                PlayerPositionsEntity
+            ],
+            synchronize: true,
+            dropSchema: false,
+            autoLoadEntities: true,
+        }),
+        SeasonModule,
+        PlayerModule,
+        PlayerPositionsModule
+    ]
 })
 export class AppModule {
-  constructor(private connection: Connection) {}  
+    constructor(private connection: Connection) { }
 }

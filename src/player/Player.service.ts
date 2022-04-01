@@ -1,26 +1,20 @@
-import { Dependencies, Inject, Injectable } from "@nestjs/common";
+import { Dependencies, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { PlayerEntity } from "./Player.entity";
-import { SeasonEntity, SeasonEnum } from "../seasons/Season.entity";
 import { Repository } from "typeorm";
+import { PlayerEntity } from "./Player.entity";
+import { SeasonEntity, SeasonEnum } from "src/seasons/Season.entity";
 import { PlayerPositionsDTO } from "src/playerpositions/PlayerPositions.dto";
-import { SeasonDTO } from "src/seasons/Season.dto";
 import { PlayerPositionsService } from "src/playerpositions/PlayerPositions.service";
 import { PlayerPositionsEntity } from "src/playerpositions/PlayerPositions.entity";
 
 @Injectable()
 @Dependencies(PlayerPositionsService)
 export class PlayerService {
-    private positionService: PlayerPositionsService;
-
     constructor(
         @InjectRepository(PlayerEntity) private playerRepo: Repository<PlayerEntity>,
         @InjectRepository(SeasonEntity) private seasonRepo: Repository<SeasonEntity>,
-        @InjectRepository(PlayerPositionsEntity) private positionRepo: Repository<PlayerPositionsEntity>,
-        positionService: PlayerPositionsService
-    ) {
-        this.positionService = positionService
-    }
+        @InjectRepository(PlayerPositionsEntity) private positionRepo: Repository<PlayerPositionsEntity>
+    ) { }
 
     public getPlayers(): Promise<Array<PlayerEntity>> {
         return this.playerRepo.find({ order: { id: "ASC" }, relations: ["seasons", "positions"] });
