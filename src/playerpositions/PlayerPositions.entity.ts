@@ -3,6 +3,8 @@ import { BaseEntity, Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, On
 import { PlayerEntity } from "src/player/Player.entity";
 
 @Entity("player_positions")
+@Index(["playerId", "seasonId"])
+@Unique("unique_player_season", ["playerId", "seasonId"])
 export class PlayerPositionsEntity extends BaseEntity {
     @PrimaryGeneratedColumn()
     id: number

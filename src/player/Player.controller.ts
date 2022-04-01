@@ -68,4 +68,27 @@ export class PlayerController {
         .then((player) => player)
         .catch((err: Error) => err.message);
     }
+
+    @Put("positions/update")
+    public updatePositionsToPlayer(
+        @Body("playerId") playerId: number,
+        @Body("year") year: number,
+        @Body("season") season: number,
+        @Body("positions") positions: PlayerPositionsDTO
+    ): Promise<PlayerEntity | string> {
+        return this.playerService.addPositionsToPlayer(playerId, year, season, positions)
+        .then((player) => player)
+        .catch((err: Error) => err.message);
+    }
+
+    @Delete("positions/remove")
+    public removePositionsToPlayer(
+        @Body("playerId") playerId: number,
+        @Body("year") year: number,
+        @Body("season") season: number
+    ): Promise<PlayerEntity | string> {
+        return this.playerService.removePositionsFromPlayer(playerId, year, season)
+        .then((player) => player)
+        .catch((err: Error) => err.message);
+    }
 }

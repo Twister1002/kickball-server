@@ -16,6 +16,7 @@ export class PlayerService {
     constructor(
         @InjectRepository(PlayerEntity) private playerRepo: Repository<PlayerEntity>,
         @InjectRepository(SeasonEntity) private seasonRepo: Repository<SeasonEntity>,
+        @InjectRepository(PlayerPositionsEntity) private positionRepo: Repository<PlayerPositionsEntity>,
         positionService: PlayerPositionsService
     ) {
         this.positionService = positionService
@@ -128,8 +129,6 @@ export class PlayerService {
             seasonPositions.pitcher = positions.pitcher;
             seasonPositions.outField = positions.outField;
 
-            console.log("Before id check")
-
             if (!seasonPositions?.id) {
                 player.positions.push(seasonPositions);
             }
@@ -138,11 +137,32 @@ export class PlayerService {
         }
     }
 
-    public async updatePositionsToPlayer() {
+    public async removePositionsFromPlayer(playerId: number, year: number, seasonNum: number): Promise<PlayerEntity> {
+        const player: PlayerEntity = await this.getPlayerById(playerId);
+        const season: SeasonEntity | undefined = await this.seasonRepo.findOne({ year, season: seasonNum }) ?? undefined;
 
-    }
-
-    public async removePositionsFromPlayer() {
-
+        // Player Exists?
+        if (!player) {
+            throw Error(`Player does not exist`);
+        }
+        // Season Exists?
+        else if (!season) {
+            throw Error(`Year ${year} and season ${SeasonEnum[seasonNum].toString()} does not exist`);
+        }
+        // Verify the player is in the season
+        else if (!player.seasons.some(x => x.id === seasonNum)) {
+            throw Error(`Player does not exist in year ${year} and season ${SeasonEnum[seasonNum].toString()}`);
+        }
+        // All good
+        else {
+            return this.positionRepo.remove(player.positions.find(x => x.seasonId === season.id))
+            .then(() => {
+                player.positions = player.positions.filter(x => x.seasonId !== season.id)
+                return player;
+            })
+            .catch((err: Error) => {
+                throw err;
+            });
+        }
     }
 }
